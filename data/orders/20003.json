@@ -1,0 +1,46 @@
+{
+  "id": "20003",
+  "number": "20003",
+  "status": "placed",
+  "createdAt": "2026-07-27T07:34:39.746Z",
+  "updatedAt": "2026-07-27T07:34:39.746Z",
+  "items": [
+    {
+      "title": "EA SPORTS FC 26 — PS5 Disc",
+      "quantity": 1,
+      "price": {
+        "amount": 15999,
+        "currencyCode": "PKR"
+      },
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3405690/64d362e71693f1ec7023f52ab94026f9a0d4fbed/header.jpg",
+      "productId": "top50-1"
+    }
+  ],
+  "subtotal": {
+    "amount": 15999,
+    "currencyCode": "PKR"
+  },
+  "shipping": {
+    "amount": 0,
+    "currencyCode": "PKR"
+  },
+  "total": {
+    "amount": 15999,
+    "currencyCode": "PKR"
+  },
+  "paymentMethod": "cod",
+  "shippingAddress": {
+    "id": "addr-20003",
+    "fullName": "asasd",
+    "phone": "123123123123",
+    "address1": "asasdasd",
+    "city": "asdasd",
+    "province": "asdasd",
+    "postalCode": "123123",
+    "country": "Pakistan"
+  },
+  "trackingNumber": "PTPK-TRK-020003",
+  "customerEmail": "asd@asd.asd",
+  "customerPhone": "123123123123",
+  "adminNotes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": "user-mrxgq1ag-cs7p4l",
+      "fullName": "user one",
+      "email": "user1@gmail.com",
+      "phone": "+323-2322322",
+      "passwordHash": "t8AecmP7vvJgEUU8lQTZ6PrO59F3aag2A6oZJsEOy_xsN6NvGS6QsCewiwNdyukASqCQQRP93uAMOuzaJK7i7g",
+      "passwordSalt": "2GerLKTGDbbUNgINBzpKyg",
+      "addresses": [],
+      "createdAt": "2026-07-23T12:03:25.576Z",
+      "updatedAt": "2026-07-23T12:03:25.576Z"
+    }
+  ]
+}

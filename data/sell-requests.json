@@ -1,0 +1,42 @@
+{
+  "requests": [
+    {
+      "id": "sell-mrxgta1h",
+      "status": "pending",
+      "createdAt": "2026-07-23T12:05:56.885Z",
+      "updatedAt": "2026-07-23T12:05:56.885Z",
+      "sellerName": "user one",
+      "sellerEmail": "user1@gmail.com",
+      "sellerPhone": "+323-2322322",
+      "title": "Call of Duty Black Ops 6 PS4",
+      "brand": "Unknown",
+      "platform": "PlayStation 4",
+      "askingPrice": 14000,
+      "conditionNotes": "Neat and clean",
+      "description": "with box",
+      "imageUrls": [
+        "/uploads/sell-requests/sell-1784808343397-4lptc8.png"
+      ]
+    },
+    {
+      "id": "sell-mrxfpur6",
+      "status": "pending",
+      "createdAt": "2026-07-23T11:35:17.490Z",
+      "updatedAt": "2026-07-23T11:35:17.490Z",
+      "sellerName": "Alex Gamer",
+      "sellerEmail": "alex@toycompany.store",
+      "sellerPhone": "+92 300 1234567",
+      "title": "LEGO Batman: Legacy of the Dark Knight - PlayStation 5",
+      "brand": "Warner Bros",
+      "platform": "PlayStation 5",
+      "askingPrice": 15000,
+      "conditionNotes": "2 months used, good condition",
+      "description": "With box in good touch",
+      "imageUrls": [
+        "/uploads/sell-requests/sell-1784806486082-csicmq.png",
+        "/uploads/sell-requests/sell-1784806486086-uwmah2.png",
+        "/uploads/sell-requests/sell-1784806486089-h4pfng.png"
+      ]
+    }
+  ]
+}

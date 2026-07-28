@@ -1,0 +1,46 @@
+{
+  "id": "20001",
+  "number": "20001",
+  "status": "placed",
+  "createdAt": "2026-07-23T12:37:24.036Z",
+  "updatedAt": "2026-07-23T12:37:24.036Z",
+  "items": [
+    {
+      "title": "Xbox Series S 512GB",
+      "quantity": 1,
+      "price": {
+        "amount": 99999,
+        "currencyCode": "PKR"
+      },
+      "image": "https://images.unsplash.com/photo-1605901309584-818e25995b6b?auto=format&fit=crop&w=800&q=80",
+      "productId": "prod-21"
+    }
+  ],
+  "subtotal": {
+    "amount": 99999,
+    "currencyCode": "PKR"
+  },
+  "shipping": {
+    "amount": 0,
+    "currencyCode": "PKR"
+  },
+  "total": {
+    "amount": 99999,
+    "currencyCode": "PKR"
+  },
+  "paymentMethod": "bank_transfer",
+  "shippingAddress": {
+    "id": "addr-20001",
+    "fullName": "Test 1",
+    "phone": "02332322323",
+    "address1": "north kararchi",
+    "city": "karachi",
+    "province": "sindh",
+    "postalCode": "123123",
+    "country": "Pakistan"
+  },
+  "trackingNumber": "PTPK-TRK-020001",
+  "customerEmail": "test@test.com",
+  "customerPhone": "02332322323",
+  "adminNotes": ""
+}

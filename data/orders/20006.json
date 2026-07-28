@@ -1,0 +1,46 @@
+{
+  "id": "20006",
+  "number": "20006",
+  "status": "placed",
+  "createdAt": "2026-07-27T07:49:07.945Z",
+  "updatedAt": "2026-07-27T07:49:07.945Z",
+  "items": [
+    {
+      "title": "God of War (2018) — PS4 Disc",
+      "quantity": 1,
+      "price": {
+        "amount": 4999,
+        "currencyCode": "PKR"
+      },
+      "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/1593500/library_600x900_2x.jpg",
+      "productId": "top-ps4-3"
+    }
+  ],
+  "subtotal": {
+    "amount": 4999,
+    "currencyCode": "PKR"
+  },
+  "shipping": {
+    "amount": 299,
+    "currencyCode": "PKR"
+  },
+  "total": {
+    "amount": 5298,
+    "currencyCode": "PKR"
+  },
+  "paymentMethod": "cod",
+  "shippingAddress": {
+    "id": "addr-20006",
+    "fullName": "asdasd",
+    "phone": "12313123123",
+    "address1": "asdasd",
+    "city": "asdasd",
+    "province": "asdasd",
+    "postalCode": "asdasd",
+    "country": "Pakistan"
+  },
+  "trackingNumber": "PTPK-TRK-020006",
+  "customerEmail": "asd@asd.asd",
+  "customerPhone": "12313123123",
+  "adminNotes": ""
+}

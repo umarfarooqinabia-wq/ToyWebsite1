@@ -1,0 +1,28 @@
+{
+  "requests": [
+    {
+      "id": "exch-mrysl4ot",
+      "status": "pending",
+      "exchangeable": false,
+      "createdAt": "2026-07-24T10:23:18.269Z",
+      "updatedAt": "2026-07-24T10:23:18.269Z",
+      "userId": "user-mrxgq1ag-cs7p4l",
+      "userName": "user one",
+      "userEmail": "user1@gmail.com",
+      "userPhone": "+323-2322322",
+      "offerTitle": "GTA 5",
+      "offerBrand": "Unknown",
+      "offerPlatform": "PlayStation 4",
+      "offerConditionNotes": "one time use",
+      "offerDescription": "exchange with spider men 2",
+      "offerImageUrls": [
+        "/uploads/exchange-requests/exch-1784888513122-sasahu.webp"
+      ],
+      "wantTitle": "Sider men 2",
+      "wantPlatform": "PlayStation 5",
+      "wantProductHandle": "spiderman-2-ps5",
+      "wantProductId": "",
+      "wantNotes": "200 return please"
+    }
+  ]
+}

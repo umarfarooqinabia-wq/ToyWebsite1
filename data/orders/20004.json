@@ -1,0 +1,46 @@
+{
+  "id": "20004",
+  "number": "20004",
+  "status": "placed",
+  "createdAt": "2026-07-27T07:39:17.777Z",
+  "updatedAt": "2026-07-27T07:39:17.777Z",
+  "items": [
+    {
+      "title": "PlayStation 5 Console Marvel’s Spider-Man 2 Limited Edition Bundle",
+      "quantity": 1,
+      "price": {
+        "amount": 265000,
+        "currencyCode": "PKR"
+      },
+      "image": "https://cdn.shopify.com/s/files/1/0860/1636/0729/products/SPIDERMAN-2-PS5.jpg?v=1707358678",
+      "productId": "prod-ps5-spiderman-2-bundle"
+    }
+  ],
+  "subtotal": {
+    "amount": 265000,
+    "currencyCode": "PKR"
+  },
+  "shipping": {
+    "amount": 0,
+    "currencyCode": "PKR"
+  },
+  "total": {
+    "amount": 265000,
+    "currencyCode": "PKR"
+  },
+  "paymentMethod": "cod",
+  "shippingAddress": {
+    "id": "addr-20004",
+    "fullName": "asdas",
+    "phone": "03321312312312",
+    "address1": "asdasdasd",
+    "city": "asdasd",
+    "province": "asdasd",
+    "postalCode": "123123",
+    "country": "Pakistan"
+  },
+  "trackingNumber": "PTPK-TRK-020004",
+  "customerEmail": "asd@asd.asd",
+  "customerPhone": "03321312312312",
+  "adminNotes": ""
+}

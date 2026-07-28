@@ -1,0 +1,44 @@
+{
+  "id": "PTPK-DEMO002",
+  "number": "PTPK-DEMO002",
+  "status": "delivered",
+  "createdAt": "2026-06-10T10:00:00Z",
+  "updatedAt": "2026-06-14T18:00:00Z",
+  "items": [
+    {
+      "title": "ASTRO BOT — PS5 Physical Edition",
+      "quantity": 1,
+      "price": {
+        "amount": 12999,
+        "currencyCode": "PKR"
+      },
+      "image": "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=200&q=80"
+    }
+  ],
+  "subtotal": {
+    "amount": 12999,
+    "currencyCode": "PKR"
+  },
+  "shipping": {
+    "amount": 0,
+    "currencyCode": "PKR"
+  },
+  "total": {
+    "amount": 12999,
+    "currencyCode": "PKR"
+  },
+  "paymentMethod": "cod",
+  "shippingAddress": {
+    "id": "addr-1",
+    "fullName": "Alex Gamer",
+    "phone": "+92 300 1234567",
+    "address1": "12 Gaming Street, Block A",
+    "city": "Lahore",
+    "province": "Punjab",
+    "postalCode": "54000",
+    "country": "Pakistan"
+  },
+  "customerEmail": "alex@toycompany.store",
+  "customerPhone": "+92 300 1234567",
+  "adminNotes": ""
+}

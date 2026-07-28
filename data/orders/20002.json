@@ -1,0 +1,46 @@
+{
+  "id": "20002",
+  "number": "20002",
+  "status": "placed",
+  "createdAt": "2026-07-27T07:29:37.746Z",
+  "updatedAt": "2026-07-27T07:29:37.746Z",
+  "items": [
+    {
+      "title": "PS5 Slim Disc Edition 1TB",
+      "quantity": 1,
+      "price": {
+        "amount": 245000,
+        "currencyCode": "PKR"
+      },
+      "image": "https://cdn.shopify.com/s/files/1/0860/1636/0729/products/PS5-SLIM-2-1.jpg?v=1707360097",
+      "productId": "prod-1"
+    }
+  ],
+  "subtotal": {
+    "amount": 245000,
+    "currencyCode": "PKR"
+  },
+  "shipping": {
+    "amount": 0,
+    "currencyCode": "PKR"
+  },
+  "total": {
+    "amount": 245000,
+    "currencyCode": "PKR"
+  },
+  "paymentMethod": "cod",
+  "shippingAddress": {
+    "id": "addr-20002",
+    "fullName": "asdasd",
+    "phone": "123123123123",
+    "address1": "asdasdasd",
+    "city": "asdasd",
+    "province": "asdasd",
+    "postalCode": "123123",
+    "country": "Pakistan"
+  },
+  "trackingNumber": "PTPK-TRK-020002",
+  "customerEmail": "asd@asd.asd",
+  "customerPhone": "123123123123",
+  "adminNotes": ""
+}
