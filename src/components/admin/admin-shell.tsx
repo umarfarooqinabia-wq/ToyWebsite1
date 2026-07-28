@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Package, LayoutDashboard, LogOut, Newspaper, Users } from "lucide-react";
 import { BrandLogo } from "@/components/layout/brand-logo";
+import { ThemeMenu } from "@/components/layout/theme-menu";
 import { cn } from "@/lib/utils";
 import { ADMIN_PUBLIC } from "@/lib/admin/public";
 
@@ -31,20 +32,25 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_rgba(0,212,170,0.08),_transparent_55%),var(--color-bg)]">
       <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
           <BrandLogo />
           <div className="min-w-0">
             <p className="font-display text-sm font-semibold">Admin Console</p>
             <p className="truncate text-xs text-muted">{ADMIN_PUBLIC.email}</p>
           </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="ml-auto inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm text-muted transition hover:border-accent hover:text-accent"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <div className="flex items-center rounded-2xl border border-border/70 bg-surface/50 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-md">
+              <ThemeMenu compact />
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm text-muted transition hover:border-accent hover:text-accent"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6">
           {NAV.map((item) => {
