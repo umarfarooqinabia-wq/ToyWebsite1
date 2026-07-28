@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { stripEmojis } from "@/lib/utils";
 
 /** Lightweight Markdown → React for CMS articles (no extra dependency). */
 export function MarkdownContent({ source }: { source: string }) {
-  const blocks = source
+  const blocks = stripEmojis(source)
     .replace(/\r\n/g, "\n")
     .split(/\n{2,}/)
     .map((b) => b.trim())

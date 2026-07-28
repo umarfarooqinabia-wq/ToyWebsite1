@@ -1,5 +1,6 @@
 import { SITE } from "@/lib/constants";
 import type { Product } from "@/types/commerce";
+import { stripEmojis } from "@/lib/utils";
 
 /** Absolute URL helper for metadata / JSON-LD. */
 export function absoluteUrl(path = "/") {
@@ -9,7 +10,7 @@ export function absoluteUrl(path = "/") {
 }
 
 export function stripForSeo(text: string, max = 160): string {
-  const cleaned = text
+  const cleaned = stripEmojis(text)
     .replace(/<[^>]+>/g, " ")
     .replace(/\n+/g, " ")
     .replace(/\s+/g, " ")

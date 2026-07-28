@@ -69,6 +69,21 @@ export function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Remove emoji / pictographs from storefront copy (Shopify descriptions often include them). */
+export function stripEmojis(input: string): string {
+  if (!input) return input;
+  return input
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/\p{Emoji_Presentation}/gu, "")
+    .replace(/\uFE0F/g, "")
+    .replace(/\u200D/g, "")
+    .replace(/^[ \t]+/gm, "")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export const FREE_SHIPPING_THRESHOLD = 15000;
 
 export function freeShippingRemaining(subtotal: number): number {

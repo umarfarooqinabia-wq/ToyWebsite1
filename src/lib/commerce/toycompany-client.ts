@@ -1,3 +1,4 @@
+import { stripEmojis } from "@/lib/utils";
 import type {
   Collection,
   Money,
@@ -108,7 +109,7 @@ export function mapAjaxProduct(raw: ShopifyAjaxProduct): Product {
   const tags = normalizeTags(raw.tags);
   const images: ProductImage[] = (raw.images ?? []).map((img) => ({
     url: img.src,
-    alt: img.alt || raw.title,
+    alt: stripEmojis(img.alt || raw.title),
     width: img.width,
     height: img.height,
   }));
@@ -137,8 +138,9 @@ export function mapAjaxProduct(raw: ShopifyAjaxProduct): Product {
 
   const typeSlug = slugify(raw.product_type || tags[0] || "toys");
   const tagSlugs = tags.map(slugify);
-  const html = raw.body_html ?? "";
-  const description = stripHtml(html) || raw.title;
+  const html = stripEmojis(raw.body_html ?? "");
+  const description = stripEmojis(stripHtml(html) || raw.title);
+  const title = stripEmojis(raw.title);
   const onDeal = variants.some(
     (v) => v.compareAtPrice && v.compareAtPrice.amount > v.price.amount,
   );
@@ -146,7 +148,7 @@ export function mapAjaxProduct(raw: ShopifyAjaxProduct): Product {
   return {
     id: `tc-${raw.id}`,
     handle: raw.handle,
-    title: raw.title,
+    title,
     brand: raw.vendor?.trim() || "ToyCompany",
     description,
     descriptionHtml: html || undefined,
@@ -171,16 +173,17 @@ export function mapAjaxProduct(raw: ShopifyAjaxProduct): Product {
 }
 
 export function mapAjaxCollection(raw: ShopifyAjaxCollection): Collection {
+  const description = stripEmojis(stripHtml(raw.description ?? "")) || raw.title;
   return {
     id: `tc-col-${raw.id}`,
     handle: raw.handle,
-    title: raw.title,
-    description: stripHtml(raw.description ?? "") || raw.title,
+    title: stripEmojis(raw.title),
+    description,
     image: raw.image?.src,
-    seoTitle: `${raw.title} | ToyCompany`,
+    seoTitle: `${stripEmojis(raw.title)} | ToyCompany`,
     seoDescription:
-      stripHtml(raw.description ?? "").slice(0, 155) ||
-      `Shop ${raw.title} online at ToyCompany Pakistan.`,
+      description.slice(0, 155) ||
+      `Shop ${stripEmojis(raw.title)} online at ToyCompany Pakistan.`,
   };
 }
 
