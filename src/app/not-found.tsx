@@ -42,9 +42,11 @@ export default function NotFound() {
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-2">
         {QUICK_LINKS.map((link) => (
-          <Button key={link.href} asChild variant="outline" size="sm">
-            <Link href={link.href}>{link.label}</Link>
-          </Button>
+          <Link key={link.href} href={link.href}>
+            <Button variant="outline" size="sm">
+              {link.label}
+            </Button>
+          </Link>
         ))}
       </div>
     </div>
