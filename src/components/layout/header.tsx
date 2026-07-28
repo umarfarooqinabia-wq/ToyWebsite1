@@ -17,7 +17,6 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 import { ThemeMenu } from "@/components/layout/theme-menu";
 import { useCartStore, cartItemCount } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
-import { useThemeStore } from "@/store/theme";
 import { useUiStore } from "@/store/ui";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +72,6 @@ export function Header() {
   const lines = useCartStore((s) => s.lines);
   const itemCount = cartItemCount(lines);
   const wishlistCount = useWishlistStore((s) => s.items.length);
-  const theme = useThemeStore((s) => s.theme);
   const openMiniCart = useUiStore((s) => s.openMiniCart);
 
   useEffect(() => {
@@ -97,11 +95,6 @@ export function Header() {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme, mounted]);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";

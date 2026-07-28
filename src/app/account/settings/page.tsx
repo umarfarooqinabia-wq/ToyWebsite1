@@ -25,10 +25,6 @@ export default function SettingsPage() {
     setPhone(user.phone || "");
   }, [user]);
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
