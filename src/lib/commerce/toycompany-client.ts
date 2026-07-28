@@ -116,15 +116,22 @@ export function mapAjaxProduct(raw: ShopifyAjaxProduct): Product {
   const variants: ProductVariant[] = (raw.variants ?? []).map((v) => {
     const price = parseFloat(v.price) || 0;
     const compare = v.compare_at_price ? parseFloat(v.compare_at_price) : NaN;
+    const shopifyQty =
+      typeof v.inventory_quantity === "number" && Number.isFinite(v.inventory_quantity)
+        ? Math.max(0, Math.floor(v.inventory_quantity))
+        : null;
+    // Prefer Shopify qty when present; otherwise keep a small sellable default
+    // so OOS Shopify flags don't empty the storefront. Admin stock overrides
+    // (cd-inventory) win later via applyStockOverrides.
+    const quantityAvailable = shopifyQty ?? 2;
     return {
       id: String(v.id),
       title: v.title || "Default",
       sku: v.sku ?? "",
       price: pkr(price),
       compareAtPrice: Number.isFinite(compare) && compare > price ? pkr(compare) : undefined,
-      // Force sellable inventory on this storefront (Shopify may mark many as OOS).
-      available: true,
-      quantityAvailable: 2,
+      available: quantityAvailable > 0,
+      quantityAvailable,
     };
   });
 

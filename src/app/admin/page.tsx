@@ -11,7 +11,7 @@ import {
   currentMonthKey,
 } from "@/lib/admin/revenue";
 import { verifyDurablePersistence } from "@/lib/admin/json-store";
-import { getBaseCatalog } from "@/lib/commerce/demo-provider";
+import { getStorefrontBaseCatalog } from "@/lib/commerce/storefront-catalog";
 import { formatMoney } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { AdminEarningsPanel } from "@/components/admin/admin-earnings-panel";
@@ -24,12 +24,13 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const [orders, inv, persistence] = await Promise.all([
+  const [orders, inv, persistence, baseCatalog] = await Promise.all([
     listAdminOrders(),
     readInventory(),
     verifyDurablePersistence(),
+    getStorefrontBaseCatalog(40),
   ]);
-  const catalog = buildAdminAwareCatalog(getBaseCatalog(), inv);
+  const catalog = buildAdminAwareCatalog(baseCatalog, inv);
   const units = catalog.reduce((s, p) => s + (p.variants[0]?.quantityAvailable ?? 0), 0);
   const lowStock = catalog.filter((p) => {
     const q = p.variants[0]?.quantityAvailable ?? 0;

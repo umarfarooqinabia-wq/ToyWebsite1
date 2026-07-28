@@ -4,13 +4,12 @@ import { getAdminSession } from "@/lib/admin/session";
 import {
   addCustomCd,
   buildAdminAwareCatalog,
-  isGameDisc,
   readInventory,
   removeCd,
   setStockQuantity,
   updateCdRow,
 } from "@/lib/admin/stock-db";
-import { getBaseCatalog } from "@/lib/commerce/demo-provider";
+import { getStorefrontBaseCatalog } from "@/lib/commerce/storefront-catalog";
 import { getProductPrice } from "@/lib/utils";
 
 export async function GET() {
@@ -20,8 +19,9 @@ export async function GET() {
   }
 
   const inv = await readInventory();
-  const products = buildAdminAwareCatalog(getBaseCatalog(), inv)
-    .filter(isGameDisc)
+  // Same Shopify toy catalog as the public storefront (not the old demo game discs).
+  const base = await getStorefrontBaseCatalog(40);
+  const products = buildAdminAwareCatalog(base, inv)
     .map((p) => {
       const { price } = getProductPrice(p);
       const qty = p.variants[0]?.quantityAvailable ?? 0;

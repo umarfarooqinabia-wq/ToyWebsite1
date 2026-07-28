@@ -5,6 +5,7 @@ import {
   fetchCollectionProducts,
   fetchProductByHandle,
 } from "@/lib/commerce/toycompany-client";
+import { withAdminInventory } from "@/lib/commerce/storefront-catalog";
 import {
   productMatchesAge,
   productMatchesAudience,
@@ -145,8 +146,9 @@ function paginate(products: Product[], page: number, pageSize: number): Paginate
 
 /**
  * Resolve products for a request.
- * Text queries hit Shopify's full-catalog predictive search.
+ * Search queries hit Shopify's full-catalog predictive search.
  * Category / age filters load matching collections.
+ * Admin inventory overrides are applied so storefront matches /admin/stock.
  */
 async function loadProducts(
   filters?: ProductFilters,
@@ -164,22 +166,22 @@ async function loadProducts(
         }
       }
     }
-    // Merge with a wider local catalog slice for typo / partial matches beyond suggest limit
     const catalog = await fetchCatalogPages(12);
     const seen = new Set(products.map((p) => p.handle));
     for (const p of catalog) {
       if (seen.has(p.handle)) continue;
-      if (scoreProductMatch(p, query) > 0 || fuzzyMatches(
-        `${p.title} ${p.brand} ${p.tags.join(" ")}`,
-        query,
-      )) {
+      if (
+        scoreProductMatch(p, query) > 0 ||
+        fuzzyMatches(`${p.title} ${p.brand} ${p.tags.join(" ")}`, query)
+      ) {
         products.push(p);
         seen.add(p.handle);
       }
     }
     products.sort((a, b) => scoreProductMatch(b, query) - scoreProductMatch(a, query));
     const { query: _q, ...rest } = filters ?? {};
-    return filterProducts(products, Object.keys(rest).length ? rest : undefined);
+    const withStock = await withAdminInventory(products);
+    return filterProducts(withStock, Object.keys(rest).length ? rest : undefined);
   }
 
   const category =
@@ -203,27 +205,24 @@ async function loadProducts(
         );
         const { category: _c, age: _age, audience: _audience, ...rest } =
           filters ?? {};
-        // Collection already scopes age/audience — keep price/brand/etc.
-        // Re-applying keyword age filters was wiping valid toys (or falling
-        // back to an unfiltered collection when price was also set).
         const refine = seededByFinder
           ? rest
           : { ...rest, age: filters?.age, audience: filters?.audience };
         const hasRefine = Object.values(refine).some(
           (v) => v !== undefined && !(Array.isArray(v) && v.length === 0),
         );
-        return filterProducts(fromCollection, hasRefine ? refine : undefined);
+        const withStock = await withAdminInventory(fromCollection);
+        return filterProducts(withStock, hasRefine ? refine : undefined);
       }
     } catch {
       // fall through to catalog
     }
   }
 
-  // Browse-all: larger slice when price filters need wider coverage
-  const wantsPrice =
-    filters?.minPrice != null || filters?.maxPrice != null;
+  const wantsPrice = filters?.minPrice != null || filters?.maxPrice != null;
   const catalog = await fetchCatalogPages(wantsPrice ? 40 : 20);
-  return filterProducts(catalog, filters);
+  const withStock = await withAdminInventory(catalog);
+  return filterProducts(withStock, filters);
 }
 
 export const toycompanyProvider: CommerceProvider = {
@@ -242,7 +241,12 @@ export const toycompanyProvider: CommerceProvider = {
   async getProductByHandle(handle) {
     try {
       const product = await fetchProductByHandle(handle);
-      return product ? enrich(product) : null;
+      if (!product) {
+        const withCustom = await withAdminInventory([]);
+        return withCustom.find((p) => p.handle === handle) ?? null;
+      }
+      const [aware] = await withAdminInventory([product]);
+      return aware ? enrich(aware) : null;
     } catch (err) {
       console.error("[toycompany] getProductByHandle failed", err);
       return null;
@@ -308,7 +312,6 @@ export const toycompanyProvider: CommerceProvider = {
         const local = curated.get(c.handle);
         return local ? { ...c, ...local, id: c.id, image: c.image || local.image } : c;
       });
-      // Ensure curated nav collections always exist even if missing remotely
       for (const c of TOY_NAV_COLLECTIONS) {
         if (!merged.some((m) => m.handle === c.handle)) merged.unshift(c);
       }
