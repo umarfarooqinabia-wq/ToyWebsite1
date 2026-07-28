@@ -12,16 +12,53 @@ import {
 import { getStorefrontBaseCatalog } from "@/lib/commerce/storefront-catalog";
 import { getProductPrice } from "@/lib/utils";
 
-export async function GET() {
+const PAGE_SIZE_DEFAULT = 100;
+const PAGE_SIZE_MAX = 100;
+
+type StockFilter = "all" | "used" | "new" | "low" | "out_of_stock";
+
+function matchesFilter(
+  row: {
+    status: "ok" | "low" | "out_of_stock";
+    condition: string;
+    title: string;
+    brand: string;
+    sku: string;
+    handle: string;
+    notes: string;
+  },
+  filter: StockFilter,
+  q: string,
+) {
+  if (filter === "low" && row.status !== "low") return false;
+  if (filter === "out_of_stock" && row.status !== "out_of_stock") return false;
+  if (filter === "used" && row.condition !== "pre-owned") return false;
+  if (filter === "new" && row.condition === "pre-owned") return false;
+  if (!q) return true;
+  const hay = `${row.title} ${row.brand} ${row.sku} ${row.handle} ${row.notes}`.toLowerCase();
+  // Every word must match somewhere (e.g. "lamborghini diecast")
+  return q.split(/\s+/).filter(Boolean).every((token) => hay.includes(token));
+}
+
+export async function GET(request: Request) {
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const url = new URL(request.url);
+  const page = Math.max(1, Number(url.searchParams.get("page") || "1") || 1);
+  const pageSize = Math.min(
+    PAGE_SIZE_MAX,
+    Math.max(1, Number(url.searchParams.get("pageSize") || PAGE_SIZE_DEFAULT) || PAGE_SIZE_DEFAULT),
+  );
+  const q = (url.searchParams.get("q") || "").trim().toLowerCase();
+  const filter = (url.searchParams.get("filter") || "all") as StockFilter;
+
   const inv = await readInventory();
   // Same Shopify toy catalog as the public storefront (not the old demo game discs).
   const base = await getStorefrontBaseCatalog(40);
-  const products = buildAdminAwareCatalog(base, inv)
+  const allProducts = buildAdminAwareCatalog(base, inv)
     .map((p) => {
       const { price } = getProductPrice(p);
       const qty = p.variants[0]?.quantityAvailable ?? 0;
@@ -53,15 +90,25 @@ export async function GET() {
     })
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  const used = products.filter((p) => p.condition === "pre-owned");
+  const used = allProducts.filter((p) => p.condition === "pre-owned");
+  const filtered = allProducts.filter((p) => matchesFilter(p, filter, q));
+  const totalFiltered = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * pageSize;
+  const products = filtered.slice(start, start + pageSize);
 
   return NextResponse.json({
     products,
+    page: safePage,
+    pageSize,
+    totalPages,
+    totalFiltered,
     totals: {
-      skus: products.length,
-      units: products.reduce((s, p) => s + p.quantity, 0),
-      lowStock: products.filter((p) => p.status === "low").length,
-      outOfStock: products.filter((p) => p.status === "out_of_stock").length,
+      skus: allProducts.length,
+      units: allProducts.reduce((s, p) => s + p.quantity, 0),
+      lowStock: allProducts.filter((p) => p.status === "low").length,
+      outOfStock: allProducts.filter((p) => p.status === "out_of_stock").length,
       usedSkus: used.length,
       usedCapital: used.reduce((s, p) => s + p.buyingPrice * p.quantity, 0),
     },

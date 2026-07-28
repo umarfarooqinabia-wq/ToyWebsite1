@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Plus, Search, Trash2, X } from "lucide-react";
 import { formatMoney } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,11 +48,13 @@ type Draft = {
 
 type FilterKey = "all" | "used" | "new" | "low" | "out_of_stock";
 
+const PAGE_SIZE = 100;
+
 const emptyAdd = {
   title: "",
   brand: "",
-  platform: "PlayStation 5",
-  condition: "pre-owned" as ProductCondition,
+  platform: "General",
+  condition: "new" as ProductCondition,
   quantity: "1",
   buyingPrice: "",
   sellingPrice: "",
@@ -81,7 +83,11 @@ export function AdminStockClient() {
   const [products, setProducts] = useState<StockRow[]>([]);
   const [totals, setTotals] = useState<Totals | null>(null);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalFiltered, setTotalFiltered] = useState(0);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -95,61 +101,84 @@ export function AdminStockClient() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/admin/stock");
-      const data = (await res.json()) as {
-        products: StockRow[];
-        totals: Totals;
-        error?: string;
-      };
-      if (!res.ok) throw new Error(data.error ?? "Failed to load stock");
-      setProducts(data.products);
-      setTotals(data.totals);
-      const next: Record<string, Draft> = {};
-      data.products.forEach((p) => {
-        next[p.id] = {
-          quantity: String(p.quantity),
-          buyingPrice: String(p.buyingPrice || ""),
-          sellingPrice: String(p.sellingPrice || p.price.amount),
-          notes: p.notes || "",
-          condition: p.condition,
-        };
-      });
-      setDrafts(next);
-    } catch (err) {
-      toast({
-        tone: "error",
-        title: "Stock load failed",
-        description: err instanceof Error ? err.message : "Try again",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 300);
+    return () => window.clearTimeout(t);
+  }, [query]);
 
   useEffect(() => {
-    void load();
-  }, []);
+    setPage(1);
+  }, [debouncedQuery, filter]);
 
-  const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return products.filter((p) => {
-      if (filter === "low" && p.status !== "low") return false;
-      if (filter === "out_of_stock" && p.status !== "out_of_stock") return false;
-      if (filter === "used" && p.condition !== "pre-owned") return false;
-      if (filter === "new" && p.condition === "pre-owned") return false;
-      if (!q) return true;
-      return (
-        p.title.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        p.handle.toLowerCase().includes(q) ||
-        p.notes.toLowerCase().includes(q)
-      );
-    });
-  }, [products, query, filter]);
+  const runSearchNow = () => {
+    const next = query.trim();
+    setDebouncedQuery(next);
+    setPage(1);
+  };
+
+  const clearSearch = () => {
+    setQuery("");
+    setDebouncedQuery("");
+    setPage(1);
+  };
+
+  const load = useCallback(
+    async (opts?: { page?: number; q?: string; filterKey?: FilterKey }) => {
+      const nextPage = opts?.page ?? page;
+      const nextFilter = opts?.filterKey ?? filter;
+      const nextQ = (opts?.q ?? debouncedQuery).trim();
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: String(nextPage),
+          pageSize: String(PAGE_SIZE),
+          filter: nextFilter,
+        });
+        if (nextQ) params.set("q", nextQ);
+        const res = await fetch(`/api/admin/stock?${params.toString()}`);
+        const data = (await res.json()) as {
+          products: StockRow[];
+          totals: Totals;
+          page: number;
+          totalPages: number;
+          totalFiltered: number;
+          error?: string;
+        };
+        if (!res.ok) throw new Error(data.error ?? "Failed to load stock");
+        setProducts(data.products);
+        setTotals(data.totals);
+        setPage(data.page);
+        setTotalPages(data.totalPages);
+        setTotalFiltered(data.totalFiltered);
+        setDrafts((prev) => {
+          const next = { ...prev };
+          data.products.forEach((p) => {
+            next[p.id] = {
+              quantity: String(p.quantity),
+              buyingPrice: String(p.buyingPrice || ""),
+              sellingPrice: String(p.sellingPrice || p.price.amount),
+              notes: p.notes || "",
+              condition: p.condition,
+            };
+          });
+          return next;
+        });
+      } catch (err) {
+        toast({
+          tone: "error",
+          title: "Stock load failed",
+          description: err instanceof Error ? err.message : "Try again",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, filter, debouncedQuery],
+  );
+
+  useEffect(() => {
+    void load({ page });
+  }, [load, page]);
 
   const patchDraft = (id: string, patch: Partial<Draft>) => {
     setDrafts((d) => ({
@@ -193,7 +222,7 @@ export function AdminStockClient() {
       const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Save failed");
       toast({ tone: "success", title: "Toy updated" });
-      await load();
+      await load({ page });
     } catch (err) {
       toast({
         tone: "error",
@@ -217,7 +246,7 @@ export function AdminStockClient() {
       const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Remove failed");
       toast({ tone: "success", title: "Toy removed" });
-      await load();
+      await load({ page });
     } catch (err) {
       toast({
         tone: "error",
@@ -306,7 +335,8 @@ export function AdminStockClient() {
       if (!res.ok) throw new Error(data.error ?? "Add failed");
       toast({ tone: "success", title: "Toy added" });
       resetAddForm();
-      await load();
+      setPage(1);
+      await load({ page: 1 });
     } catch (err) {
       toast({
         tone: "error",
@@ -357,15 +387,37 @@ export function AdminStockClient() {
       ) : null}
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-          <Input
-            className="pl-9"
-            placeholder="Search title, brand, SKU, notes…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
+        <form
+          className="relative flex flex-1 gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            runSearchNow();
+          }}
+        >
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+            <Input
+              className="pl-9 pr-9"
+              placeholder="Find a toy across all stock (name, brand, SKU)…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search toys"
+            />
+            {query ? (
+              <button
+                type="button"
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-muted hover:bg-surface-hover hover:text-text"
+                onClick={clearSearch}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
+          </div>
+          <Button type="submit" variant="outline" className="shrink-0">
+            Search
+          </Button>
+        </form>
         <div className="flex flex-wrap gap-2">
           {(
             [
@@ -392,6 +444,59 @@ export function AdminStockClient() {
         </div>
       </div>
 
+      {debouncedQuery ? (
+        <p className="text-sm text-muted">
+          Search results for{" "}
+          <span className="font-semibold text-text">“{debouncedQuery}”</span>
+          {" — "}
+          {totalFiltered} match{totalFiltered === 1 ? "" : "es"} in full catalog
+          (not limited to the current page).
+        </p>
+      ) : (
+        <p className="text-sm text-muted">
+          Tip: use Search to jump to a specific toy instead of flipping pages.
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
+        <p>
+          Showing{" "}
+          <span className="font-semibold text-text">
+            {totalFiltered === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–
+            {Math.min(page * PAGE_SIZE, totalFiltered)}
+          </span>{" "}
+          of <span className="font-semibold text-text">{totalFiltered}</span> toys
+          · {PAGE_SIZE} per page
+        </p>
+        {totalPages > 1 ? (
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={loading || page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Prev
+            </Button>
+            <span className="tabular-nums">
+              Page {page} / {totalPages}
+            </span>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={loading || page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : null}
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-border bg-surface">
         <div className="overflow-x-auto">
           <table className="min-w-[1100px] w-full text-left text-sm">
@@ -415,14 +520,14 @@ export function AdminStockClient() {
                     Loading stock…
                   </td>
                 </tr>
-              ) : rows.length === 0 ? (
+              ) : products.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-10 text-center text-muted">
-                    No discs match your filters. Add a used toy to get started.
+                    No toys match your filters.
                   </td>
                 </tr>
               ) : (
-                rows.map((p) => {
+                products.map((p) => {
                   const draft = drafts[p.id];
                   const buy = Number(draft?.buyingPrice || 0);
                   const sell = Number(draft?.sellingPrice || 0);
@@ -551,6 +656,34 @@ export function AdminStockClient() {
           </table>
         </div>
       </div>
+
+      {totalPages > 1 ? (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={loading || page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Prev
+          </Button>
+          <span className="px-2 text-sm tabular-nums text-muted">
+            Page {page} / {totalPages}
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={loading || page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : null}
 
       {showAdd ? (
         <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/60 p-4 sm:items-center">
